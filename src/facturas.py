@@ -58,6 +58,21 @@ class Facturas():
         model = self.CMunicipio.get_model()
         localidad = model[index]
         self.entryLocalidad.set_text(localidad[0])
+    def AltasCliente(self,widget,data=None):
+       DNI= self.entryDNI.get_text()
+       Nombre=self.entryNombre.get_text()
+       Apellido= self.entryApellido.get_text()
+       Direccion= self.entryDIreccion1.get_text()
+       Telefono= self.entryTelefono.get_text()
+       Email= self.entryEmail.get_text()
+       Categoria= self.entryCategoria.get_text()
+       Localidad= self.entryLocalidad.get_text()
+       
+       respuesta=ModuloMunicipios.ValidoDNI(DNI)
+       
+       if respuesta == True:
+           if Nombre != None and Apellido !=None and Direccion !=None and Telefono !=None and Email !=None and Categoria !=None and Localidad !=None:
+               Fila(DNI,Nombre,Apellido,Direccion,Telefono,Email,Categoria,Localidad)
     
     
 if __name__ == "__main__":
