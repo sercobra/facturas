@@ -52,5 +52,20 @@ def ValidoDNI(self,widget,dni):
         # devuelve true o si no devuelva false
             return False
         except:
-            print 'Error en la aplicacion'
+            print 'Error con el dni'
             return None
+def LimpiarRegistroClientes(self,widget):
+    self.entryDNI.set_text("")
+    self.entryNombre.set_text("")
+    self.entryApellido.set_text("")
+    self.entryDIreccion1.set_text("")
+    self.entryTelefono.set_text("")
+    self.entryEmail.set_text("")
+    self.entryCategoria.set_text("")
+    self.entryLocalidad.set_text("")
+    self.comboProvincia.set_text("")
+    self.comboMunicipio.set_text("")
+def LimpiarRegistrosProductos(self,widget):
+    self.entryNomProducto.set_text("")
+    self.entryPreProducto.set_text("")
+    self.entryStock.set_text("")
