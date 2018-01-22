@@ -43,7 +43,7 @@ class Facturas():
         self.LProvincia=b.get_object("Provincia")
         self.LMunicipio=b.get_object("Municipio")
         #Lista clientes
-        self.ListaCliente=b.get_object("ListaCliente")
+        self.ListaClientes=b.get_object("ListaClientes")
         self.TablaClientes=b.get_object("treeview4")
         self.IDCLIENTE=""
         #Altas Producto
@@ -62,6 +62,8 @@ class Facturas():
         b.connect_signals(dic)
         
         self.ventanaPrincipal.show()
+        self.ListarClientes(self)
+        self.ListarProductos(self)
         
     def Salir(self,widget,data=None):
         Gtk.main_quit()
@@ -84,24 +86,24 @@ class Facturas():
        Email= self.entryEmail.get_text()
        Categoria= self.entryCategoria.get_text()
        Localidad= self.entryLocalidad.get_text()
-       print DNI
-       respuesta=ModuloMunicipios.ValidoDNI(DNI,self,widget)
+       respuesta=ModuloMunicipios.ValidoDNI(self,widget,DNI)
+       print respuesta
        
        if respuesta == True:
            if Nombre != None and Apellido !=None and Direccion !=None and Telefono !=None and Email !=None and Categoria !=None and Localidad !=None:
-               Fila(DNI,Nombre,Apellido,Direccion,Telefono,Email,Categoria,Localidad)
+               Fila=(DNI,Nombre,Apellido,Direccion,Telefono,Email,Categoria,Localidad)
                Conexion2.GuardarCliente(Fila)
                ModuloMunicipios.LimpiarRegistroClientes(self,widget)
-               ListarClientes(self,widget)
+               self.ListarClientes(self,widget)
            else:
                print "Introduce todos los datos"
        else:
            print "Escribe bien el dni"
     def ListarClientes(self,widget,data=None):
             Lista=Conexion2.ListarCLientes()
-            self.ListaCliente.clear()
+            self.ListaClientes.clear()
             for registro in Lista:
-                self.ListaCliente.append(registro)
+                self.ListaClientes.append(registro)
     def seleccionarCliente(self,widget,data=None):
         model, iter= self.TablaClientes.get_selection().get_selected()
         
@@ -127,6 +129,7 @@ class Facturas():
         if self.IDCLIENTE!=None:
             Conexion2.BorrarCLiente(self.IDCLIENTE)
             ModuloMunicipios.LimpiarRegistroClientes(self,widget)
+            self.ListarClientes(self)
         else:
             print "Seleccione un cliente para borrar"
     def ModificarCliente(self,widget,data=None):
@@ -140,14 +143,14 @@ class Facturas():
             Categoria= self.entryCategoria.get_text()
             Localidad= self.entryLocalidad.get_text()
        
-            respuesta=ModuloMunicipios.ValidoDNI(DNI,self,widget)
+            respuesta=ModuloMunicipios.ValidoDNI(self,widget,DNI)
        
             if respuesta == True:
                 if Nombre != None and Apellido !=None and Direccion !=None and Telefono !=None and Email !=None and Categoria !=None and Localidad !=None:
-                    Fila(DNI,Nombre,Apellido,Direccion,Telefono,Email,Categoria,Localidad,self.IDCLIENTE)
+                    Fila=(DNI,Nombre,Apellido,Direccion,Telefono,Email,Categoria,Localidad,self.IDCLIENTE)
                     Conexion2.ModificarCliente(Fila)
                     ModuloMunicipios.LimpiarRegistroClientes(self,widget)
-                    ListarClientes(self,widget)
+                    self.ListarClientes(self,widget)
                 else:
                     print "Introduce todos los datos"
             else:
@@ -159,10 +162,10 @@ class Facturas():
         Precio=self.entryPreProducto.get_text()
         Stock=self.entryStock.get_text()
         if Producto!=None and Precio!=None and Stock!=None:
-            FilaProd(Producto,Precio,Stock)
+            FilaProd=(Producto,Precio,Stock)
             Conexion2.GuardarProductos(FilaProd)
             ModuloMunicipios.LimpiarRegistrosProductos(self,widget)
-            ListarProductos(self,widget)
+            self.ListarProductos(self,widget)
         else:
             print "Pon los datos del producto"
     def ListarProductos(self,widget,data=None):
@@ -178,13 +181,15 @@ class Facturas():
             Nombre=model.get_value(iter,1)
             self.entryNomProducto.set_text(Nombre)
             Precio=model.get_value(iter,2)
-            self.entryPreProducto.set_text(Precio)
+            self.entryPreProducto.set_text(str(Precio))
             Stock=model.get_value(iter,3)
-            self.entryStock.set_text(Stock)
+            self.entryStock.set_text(str(Stock))
     def BorrarProducto(self,widget,data=None):
         if self.IDPRODUCTO!=None:
             Conexion2.BorrarPRoducto(self.IDPRODUCTO)
             ModuloMunicipios.LimpiarRegistroClientes(self,widget)
+            self.ListarProductos(self)
+            self.LimpiarRegistrosProductos(self)
         else:
             print "Seleccione un producto para borrar"
     def ModificarProducto(self,widget,data=None):
@@ -193,10 +198,10 @@ class Facturas():
             Precio=self.entryPreProducto.get_text()
             Stock=self.entryStock.get_text()
             if Producto!=None and Precio!=None and Stock!=None:
-                FilaProd(Producto,Precio,Stock,self.IDPRODUCTO)
+                FilaProd=(Producto,Precio,Stock,self.IDPRODUCTO)
                 Conexion2.MoficarPRoductos(FilaProd)
                 ModuloMunicipios.LimpiarRegistrosProductos(self,widget)
-                ListarProductos(self,widget)
+                self.ListarProductos(self,widget)
             else:
                 print "Pon los datos del producto"
         else:

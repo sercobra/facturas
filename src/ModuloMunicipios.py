@@ -33,27 +33,28 @@ def selprov(self, widget):
         cargarcmbmunicipios(self)
 
 def ValidoDNI(self,widget,dni):
-        try:
-            tabla = "TRWAGMYFPDXBNJZSQVHLCKE" #letras del dni
-            dig_ext = "XYZ" #tabla letras extranjero
-            reemp_dig_ext = {'X':'0', 'Y':'1', 'Z':'2'} #letras que identifican extranjero
-            numeros = "1234567890"
-            dni = dni.upper() #pasa letras a mayusculas
-            if len(dni) == 9: #el dni debe tener 9 caracteres
-                dig_control = dni[8]
-                dni = dni[:8]
-                if dni[0] in dig_ext:
+    try:
+        tabla = "TRWAGMYFPDXBNJZSQVHLCKE" #letras del dni
+        dig_ext = "XYZ" #tabla letras extranjero
+        reemp_dig_ext = {'X':'0', 'Y':'1', 'Z':'2'} #letras que identifican extranjero
+        numeros = "1234567890"
+        dni = dni.upper() #pasa letras a mayusculas
+        if len(dni) == 9: #el dni debe tener 9 caracteres
+            dig_control = dni[8]
+            dni = dni[:8]
+        if dni[0] in dig_ext:
                 # la letra
                 #el numero que son los 8 primeros
                 # comprueba que es extranjero
-                    dni = dni.replace(dni[0], reemp_dig_ext[dni[0]])
-                return len(dni) == len([n for n in dni if n in numeros]) and tabla[int(dni)%23] ==  dig_control
+            dni = dni.replace(dni[0], reemp_dig_ext[dni[0]])
+        return len(dni) == len([n for n in dni if n in numeros]) and tabla[int(dni)%23] ==  dig_control
        
         # devuelve true o si no devuelva false
-            return False
-        except:
-            print 'Error con el dni'
-            return None
+        return False
+    except:
+        print 'Error con el dni'
+        return None
+        
 def LimpiarRegistroClientes(self,widget):
     self.entryDNI.set_text("")
     self.entryNombre.set_text("")
@@ -63,8 +64,6 @@ def LimpiarRegistroClientes(self,widget):
     self.entryEmail.set_text("")
     self.entryCategoria.set_text("")
     self.entryLocalidad.set_text("")
-    self.comboProvincia.set_text("")
-    self.comboMunicipio.set_text("")
 def LimpiarRegistrosProductos(self,widget):
     self.entryNomProducto.set_text("")
     self.entryPreProducto.set_text("")
