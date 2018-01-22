@@ -12,6 +12,7 @@ import gi
 import Conexion
 import Conexion2
 import ModuloMunicipios
+import datetime
 gi.require_version('Gtk','3.0')
 from gi.repository import Gtk
 
@@ -54,16 +55,33 @@ class Facturas():
         self.ListaProductos=b.get_object("ListaProductos")
         self.TablaProductos=b.get_object("treeview5")
         self.IDPRODUCTO=""
+        #Ventana Ventas
+        self.CidCliente=b.get_object("combobox3")
+        self.CidProducto=b.get_object("combobox4")
+        self.entryCantidad=b.get_object("entry2")
+        self.ListaCliente=b.get_object("ListaCliente")
+        self.listaProductos=b.get_object("listaProductos")
+        self.ListaVentas=b.get_object("listaVentas")
+        self.NUMFACTURA=""
+        #Coger Ventas
+        self.TablaVentas=b.get_object("treeview6")
+        self.IDVENTAS=""
+        self.LabelCliente=b.get_object("label4")
+        self.LabelProducto=b.get_object("label5")
         
         dic={"on_butSalir1_clicked":self.Salir,"on_btnSeleccionarLocalidad1_clicked":self.MostrarVentanaMunicipios,"on_combobox1_changed":self.selprov,
         "on_combobox2_changed":self.CogerProvincia,"on_AltasCliente1_clicked":self.AltasCliente,"on_treeview4_cursor_changed":self.seleccionarCliente,
         "on_AltasProductos1_clicked":self.altasProductos,"on_treeview5_cursor_changed":self.CogerProducto,"on_BajasCliente1_clicked":self.BorrarCliente,
-        "on_BajasProductos1_clicked":self.BorrarProducto,"on_ModificacionesCliente1_clicked":self.ModificarCliente,"on_ModificacionesProductos1_clicked":self.ModificarProducto}
+        "on_BajasProductos1_clicked":self.BorrarProducto,"on_ModificacionesCliente1_clicked":self.ModificarCliente,"on_ModificacionesProductos1_clicked":self.ModificarProducto,
+        "on_AltasVentas1_clicked":self.AltaVentas,"on_BajasVentas1_clicked":self.BajasVenta,"on_treeview6_cursor_changed":self.CogerVenta,"on_ModificacionesVentas1_clicked":self.ModificarVenta,
+        "on_combobox3_changed":self.MostrarDNIcliente,"on_combobox4_changed":self.MostrarNombreProd}
         b.connect_signals(dic)
         
         self.ventanaPrincipal.show()
         self.ListarClientes(self)
         self.ListarProductos(self)
+        self.ListaIdCliente(self)
+        self.ListaIdProducto(self)
         
     def Salir(self,widget,data=None):
         Gtk.main_quit()
@@ -206,7 +224,107 @@ class Facturas():
                 print "Pon los datos del producto"
         else:
             print "Seleccione un producto para modificar"
+    def AltaVentas(self,widget,data=None):
+        index= self.CidClient.get_active()
+        model= self.CidClient.get_model()
+        idCliente= model[index]
+        index= self.CidProducto.get_active()
+        model= self.CidProducto.get_model()
+        idProducto=model[index]
+        Fecha=datetime.date.today()
+        if self.NUMFACTURA==None:
+            FilaProducto=(idCliente,Fecha)
+            self.Conexion2.GuardarFactura(FilaProducto)
+            Cantidad=self.entryCantidad.get_text()
+            self.NUMFACTURA=Conexion2.CargarFacturaCli(idCliente)
+        
             
+        
+        if idCliente!=None and idProducto!=None and Cantidad!=None:
+            Producto=Conexion2.CogerProducto(idProducto)
+            Precio = Producto[3]
+            Calculo = float(Precio)*float(Cantidad)
+            
+            filaVenta=(self.NUMFACTURA,idCliente[0],idProducto[0],Cantidad,Calculo,idCliente)
+            Conexion2.GuardarVEnta(filaVenta)
+            self.ListarVentas(self,widget)
+            
+        else:
+            print "La venta debe tener idCLiente, idProducto y cantidad"
+    def ListarVentas(self,widget,data=None):
+         Lista=Conexion2.ListarVEntas()
+         self.ListaVentas.clear()
+         for registro in Lista:
+            self.ListaVentas.append(registro)
+    def CogerVenta(self,widget,data=None):
+         model, iter= self.TablaVentas.get_selection().get_selected()
+         
+         if iter!=None:
+             self.IDVENTAS=model.get_value(iter,0)
+             self.NUMFACTURA=model.get_value(iter,1)
+             self.CidProducto.set_active(model.get_value(iter,2))
+             self.CidCliente.set_active(model.get_value(iter,3))
+             self.entryCantidad.set_text(str(model.get_value(iter,5)))
+    def BajasVenta(self,widget,data=None):
+        if self.IDVENTAS!=None:
+            Conexion2.BorrarVentas(self.IDVENTAS)
+        else:
+            print "Elige una venta"
+    def ModificarVenta(self,widget,data=None):
+        index= self.CidClient.get_active()
+        model= self.CidClient.get_model()
+        idCliente= model[index]
+        index= self.CidProducto.get_active()
+        model= self.CidProducto.get_model()
+        idProducto=model[index]
+        Fecha=datetime.date.today()
+        if self.NUMFACTURA==None:
+            FilaProducto=(idCliente,Fecha)
+            self.Conexion2.GuardarFactura(FilaProducto)
+            Cantidad=self.entryCantidad.get_text()
+            self.NUMFACTURA=Conexion2.CargarFacturaCli(idCliente)
+        
+            
+        
+        if idCliente!=None and idProducto!=None and Cantidad!=None:
+            Producto=Conexion2.CogerProducto(idProducto)
+            Precio = Producto[3]
+            Calculo = float(Precio)*float(Cantidad)
+            if self.IDVENTAS!=None:
+                filaVenta=(self.NUMFACTURA,idCliente[0],idProducto[0],Cantidad,Calculo,idCliente,self.IDVENTAS)
+                Conexion2.ModificarVEnta(filaVenta)
+                self.ListarVentas(self,widget)
+            else:
+                print "Seleccione una venta"
+            
+        else:
+            print "La venta debe tener idCLiente, idProducto y cantidad"
+    def ListaIdCliente(self,widget,data=None):
+         Lista=Conexion2.ListarIDcliente()
+         self.ListaVentas.clear()
+         for registro in Lista:
+             self.ListaCliente.append(registro)
+    def ListaIdProducto(self,widget,data=None):
+         Lista=Conexion2.ListarIDproducto()
+         self.ListaVentas.clear()
+         for registro in Lista:
+            self.listaProductos.append(registro)
+    def MostrarDNIcliente(self,widget,data=None):
+        index= self.CidCliente.get_active()
+        model= self.CidCliente.get_model()
+        idCliente= model[index]
+        print idCliente[0]
+        dato=Conexion2.CogerDNICliente(idCliente[0])
+        print dato
+        self.LabelCliente.set_text(dato[1])
+    def MostrarNombreProd(self,widget,data=None):
+        index= self.CidProducto.get_active()
+        model= self.CidProducto.get_model()
+        idProducto=model[index]
+        dato=Conexion2.CogerNOmbreProducto(idProducto[0])
+        print dato
+        self.LabelProducto.set_text(dato[1])
+        
 if __name__ == "__main__":
     main = Facturas()
     Gtk.main()

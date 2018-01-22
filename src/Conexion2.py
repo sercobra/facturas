@@ -17,6 +17,7 @@ except:
     
 def GuardarCliente(file):
    try: 
+    print file
     cur.execute("insert into cliente(DNI,nombre,apellido,direccion,telefono,email,categoria,localidad) values(?,?,?,?,?,?,?,?)",file)
     conex.commit()
    except:
@@ -75,3 +76,100 @@ def MoficarPRoductos(fila):
     except:
         print "Error al modificar el producto"
         conex.rollback
+def CogerProducto(idProducto):
+    try:
+        cur.execute("select * from producto where id_producto=?",(idProducto))
+        listado = cur.fetchone()
+        conex.commit()
+        return listado
+    except:
+        print "Error al coger producto"
+        conex.rollback
+def GuardarFactura(filaFactura):
+    try: 
+        cur.execute("insert into Factura(id_cliente,fecha) values(?,?,?)",filaFactura)
+        conex.commit()
+    except:
+       print "Error al crear factura"
+       conex.rollback
+def CargarFacturaCli(idCLiente):
+    try:
+        cur.execute("select * from Factura where id_cliente=?",(idCLiente))
+        listado = cur.fetchone()
+        conex.commit()
+        return listado
+    except:
+        print "Error al coger numero factura"
+        conex.rollback
+def GuardarVEnta(filaVentas):
+    try: 
+        cur.execute("insert into Ventas(id_factura,idProducto,cantidad,precio,idCliente) values(?,?,?,?)",filaVentas)
+        conex.commit()
+    except:
+       print "Error al guardar venta"
+       conex.rollback
+def ListarVEntas():
+    try:
+        cur.execute("select * from Ventas")
+        listado = cur.fetchall()
+        conex.commit()
+        return listado
+        
+    except:
+        print "Error al listar la venta"
+        conex.rollback()
+def ModificarVEnta(ListaVEnta):
+    try:
+        cur.execute("Update ventas id_factura=?,idProducto=?,cantidad=?,precio=?,idCliente=? where num_detalle=?",ListaVEnta)
+        conex.commit()
+    except:
+       print "Error al modificar venta"
+       conex.rollback
+def BorrarVentas(IDVENTA):
+    try:
+        cur.execute("Delete from ventas where num_detalle=?",IDVENTA)
+        conex.commit()
+    except:
+        print "Error al borrar la venta"
+        conex.rollback
+def ListarIDcliente():
+    try:
+        cur.execute("select id_cliente from cliente")
+        listado = cur.fetchall()
+        conex.commit()
+        return listado
+        
+    except:
+        print "Error al listar la venta"
+        conex.rollback()
+        
+def ListarIDproducto():
+    try:
+        cur.execute("select id_producto from producto")
+        listado = cur.fetchall()
+        conex.commit()
+        return listado
+        
+    except:
+        print "Error al listar la venta"
+        conex.rollback()
+def CogerDNICliente(id):
+    try:
+        cur.execute("select * from cliente where id_cliente=?",id)
+        listado = cur.fetchall()
+        conex.commit()
+        return listado
+        
+    except:
+        print "Error al mostrar DNI cliente"
+        conex.rollback()
+def CogerNOmbreProducto(id):
+    try:
+        cur.execute("select * from producto where id_producto=?",id)
+        listado = cur.fetchall()
+        conex.commit()
+        return listado
+        
+    except:
+        print "Error al mostrar nombre cliente"
+        conex.rollback()
