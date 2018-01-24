@@ -78,8 +78,8 @@ def MoficarPRoductos(fila):
         conex.rollback
 def CogerProducto(idProducto):
     try:
-        cur.execute("select * from producto where id_producto=?",(idProducto))
-        listado = cur.fetchone()
+        cur.execute("select * from producto where id_producto=?",(idProducto,))
+        listado = cur.fetchall()
         conex.commit()
         return listado
     except:
@@ -87,14 +87,14 @@ def CogerProducto(idProducto):
         conex.rollback
 def GuardarFactura(filaFactura):
     try: 
-        cur.execute("insert into Factura(id_cliente,fecha) values(?,?,?)",filaFactura)
+        cur.execute("insert into Factura(id_cliente,fecha) values(?,?)",filaFactura)
         conex.commit()
     except:
        print "Error al crear factura"
        conex.rollback
 def CargarFacturaCli(idCLiente):
     try:
-        cur.execute("select * from Factura where id_cliente=?",(idCLiente))
+        cur.execute("select * from Factura where id_cliente=?",(idCLiente,))
         listado = cur.fetchone()
         conex.commit()
         return listado
@@ -103,7 +103,7 @@ def CargarFacturaCli(idCLiente):
         conex.rollback
 def GuardarVEnta(filaVentas):
     try: 
-        cur.execute("insert into Ventas(id_factura,idProducto,cantidad,precio,idCliente) values(?,?,?,?)",filaVentas)
+        cur.execute("insert into Ventas(id_factura,idProducto,idCliente,cantidad,precio) values(?,?,?,?,?)",filaVentas)
         conex.commit()
     except:
        print "Error al guardar venta"
@@ -127,7 +127,7 @@ def ModificarVEnta(ListaVEnta):
        conex.rollback
 def BorrarVentas(IDVENTA):
     try:
-        cur.execute("Delete from ventas where num_detalle=?",IDVENTA)
+        cur.execute("Delete from ventas where num_detalle=?",(IDVENTA,))
         conex.commit()
     except:
         print "Error al borrar la venta"
@@ -155,7 +155,7 @@ def ListarIDproducto():
         conex.rollback()
 def CogerDNICliente(id):
     try:
-        cur.execute("select * from cliente where id_cliente=?",id)
+        cur.execute("select DNI from cliente where id_cliente=?",(id,))
         listado = cur.fetchall()
         conex.commit()
         return listado
@@ -165,7 +165,7 @@ def CogerDNICliente(id):
         conex.rollback()
 def CogerNOmbreProducto(id):
     try:
-        cur.execute("select * from producto where id_producto=?",id)
+        cur.execute("select nombre from producto where id_producto=?",(id,))
         listado = cur.fetchall()
         conex.commit()
         return listado

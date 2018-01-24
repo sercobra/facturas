@@ -82,6 +82,7 @@ class Facturas():
         self.ListarProductos(self)
         self.ListaIdCliente(self)
         self.ListaIdProducto(self)
+        self.ListarVentas(self)
         
     def Salir(self,widget,data=None):
         Gtk.main_quit()
@@ -225,32 +226,34 @@ class Facturas():
         else:
             print "Seleccione un producto para modificar"
     def AltaVentas(self,widget,data=None):
-        index= self.CidClient.get_active()
-        model= self.CidClient.get_model()
-        idCliente= model[index]
-        index= self.CidProducto.get_active()
+        Cantidad=""
+        model= self.CidCliente.get_model()
+        idCliente= model[self.CidCliente.get_active()][0]
         model= self.CidProducto.get_model()
-        idProducto=model[index]
+        idProducto=model[self.CidProducto.get_active()][0]
         Fecha=datetime.date.today()
-        if self.NUMFACTURA==None:
+        if self.NUMFACTURA=="":
             FilaProducto=(idCliente,Fecha)
-            self.Conexion2.GuardarFactura(FilaProducto)
+            Conexion2.GuardarFactura(FilaProducto)
             Cantidad=self.entryCantidad.get_text()
             self.NUMFACTURA=Conexion2.CargarFacturaCli(idCliente)
-        
+            print self.NUMFACTURA
+            self.NUMFACTURA=self.NUMFACTURA[0]
             
         
-        if idCliente!=None and idProducto!=None and Cantidad!=None:
+        if idCliente!=None and idProducto!=None and Cantidad!="":
             Producto=Conexion2.CogerProducto(idProducto)
-            Precio = Producto[3]
-            Calculo = float(Precio)*float(Cantidad)
+            Precio =float(Producto[0][3])
+            Calculo = Precio*float(Cantidad)
             
-            filaVenta=(self.NUMFACTURA,idCliente[0],idProducto[0],Cantidad,Calculo,idCliente)
+            filaVenta=(self.NUMFACTURA,idProducto,idCliente,Cantidad,Calculo)
+            print filaVenta
             Conexion2.GuardarVEnta(filaVenta)
             self.ListarVentas(self,widget)
             
         else:
             print "La venta debe tener idCLiente, idProducto y cantidad"
+        self.NUMFACTURA=""
     def ListarVentas(self,widget,data=None):
          Lista=Conexion2.ListarVEntas()
          self.ListaVentas.clear()
@@ -262,21 +265,23 @@ class Facturas():
          if iter!=None:
              self.IDVENTAS=model.get_value(iter,0)
              self.NUMFACTURA=model.get_value(iter,1)
+             print model.get_value(iter,2)
              self.CidProducto.set_active(model.get_value(iter,2))
-             self.CidCliente.set_active(model.get_value(iter,3))
-             self.entryCantidad.set_text(str(model.get_value(iter,5)))
+             self.CidCliente.set_active(int(model.get_value(iter,3)))
+             self.entryCantidad.set_text(str(model.get_value(iter,4)))
     def BajasVenta(self,widget,data=None):
+        print self.IDVENTAS
         if self.IDVENTAS!=None:
             Conexion2.BorrarVentas(self.IDVENTAS)
         else:
             print "Elige una venta"
     def ModificarVenta(self,widget,data=None):
-        index= self.CidClient.get_active()
-        model= self.CidClient.get_model()
-        idCliente= model[index]
+        index= self.CidCliente.get_active()
+        model= self.CidCliente.get_model()
+        idCliente= model[self.CidCliente.get_active()][0]
         index= self.CidProducto.get_active()
         model= self.CidProducto.get_model()
-        idProducto=model[index]
+        idProducto=model[self.CidProducto.get_active()][0]
         Fecha=datetime.date.today()
         if self.NUMFACTURA==None:
             FilaProducto=(idCliente,Fecha)
@@ -291,7 +296,7 @@ class Facturas():
             Precio = Producto[3]
             Calculo = float(Precio)*float(Cantidad)
             if self.IDVENTAS!=None:
-                filaVenta=(self.NUMFACTURA,idCliente[0],idProducto[0],Cantidad,Calculo,idCliente,self.IDVENTAS)
+                filaVenta=(self.NUMFACTURA,idCliente,idProducto,Cantidad,Calculo,idCliente,self.IDVENTAS)
                 Conexion2.ModificarVEnta(filaVenta)
                 self.ListarVentas(self,widget)
             else:
@@ -312,18 +317,17 @@ class Facturas():
     def MostrarDNIcliente(self,widget,data=None):
         index= self.CidCliente.get_active()
         model= self.CidCliente.get_model()
-        idCliente= model[index]
-        print idCliente[0]
-        dato=Conexion2.CogerDNICliente(idCliente[0])
-        print dato
-        self.LabelCliente.set_text(dato[1])
+        idCliente= model[self.CidCliente.get_active()][0]
+        dato=Conexion2.CogerDNICliente(idCliente)
+        for var in dato: 
+            self.LabelCliente.set_text(str(var[0]))
     def MostrarNombreProd(self,widget,data=None):
         index= self.CidProducto.get_active()
         model= self.CidProducto.get_model()
-        idProducto=model[index]
-        dato=Conexion2.CogerNOmbreProducto(idProducto[0])
-        print dato
-        self.LabelProducto.set_text(dato[1])
+        idProducto=model[self.CidProducto.get_active()][0]
+        dato=Conexion2.CogerNOmbreProducto(idProducto)
+        for var in dato:
+            self.LabelProducto.set_text(str(var[0]))
         
 if __name__ == "__main__":
     main = Facturas()
