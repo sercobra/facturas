@@ -12,6 +12,7 @@ import gi
 import Conexion
 import Conexion2
 import ModuloMunicipios
+import ModuloPDF
 import datetime
 gi.require_version('Gtk','3.0')
 from gi.repository import Gtk
@@ -68,13 +69,18 @@ class Facturas():
         self.IDVENTAS=""
         self.LabelCliente=b.get_object("label4")
         self.LabelProducto=b.get_object("label5")
+        #Listar Facturas
+        self.ListarFacturas=b.get_object("listaFacturas")
+        self.TablaFacturas=b.get_object("treeview3")
+        
         
         dic={"on_butSalir1_clicked":self.Salir,"on_btnSeleccionarLocalidad1_clicked":self.MostrarVentanaMunicipios,"on_combobox1_changed":self.selprov,
         "on_combobox2_changed":self.CogerProvincia,"on_AltasCliente1_clicked":self.AltasCliente,"on_treeview4_cursor_changed":self.seleccionarCliente,
         "on_AltasProductos1_clicked":self.altasProductos,"on_treeview5_cursor_changed":self.CogerProducto,"on_BajasCliente1_clicked":self.BorrarCliente,
         "on_BajasProductos1_clicked":self.BorrarProducto,"on_ModificacionesCliente1_clicked":self.ModificarCliente,"on_ModificacionesProductos1_clicked":self.ModificarProducto,
         "on_AltasVentas1_clicked":self.AltaVentas,"on_BajasVentas1_clicked":self.BajasVenta,"on_treeview6_cursor_changed":self.CogerVenta,"on_ModificacionesVentas1_clicked":self.ModificarVenta,
-        "on_combobox3_changed":self.MostrarDNIcliente,"on_combobox4_changed":self.MostrarNombreProd}
+        "on_combobox3_changed":self.MostrarDNIcliente,"on_combobox4_changed":self.MostrarNombreProd,"on_treeview3_cursor_changed":self.SelecionarFactura,
+        "on_btCrearFactura_clicked":self.CrearPDF}
         b.connect_signals(dic)
         
         self.ventanaPrincipal.show()
@@ -83,6 +89,7 @@ class Facturas():
         self.ListaIdCliente(self)
         self.ListaIdProducto(self)
         self.ListarVentas(self)
+        self.LitarFacturas(self)
         
     def Salir(self,widget,data=None):
         Gtk.main_quit()
@@ -253,7 +260,7 @@ class Facturas():
             
         else:
             print "La venta debe tener idCLiente, idProducto y cantidad"
-        self.NUMFACTURA=""
+            
     def ListarVentas(self,widget,data=None):
          Lista=Conexion2.ListarVEntas()
          self.ListaVentas.clear()
@@ -273,6 +280,7 @@ class Facturas():
         print self.IDVENTAS
         if self.IDVENTAS!=None:
             Conexion2.BorrarVentas(self.IDVENTAS)
+            self.ListarVentas(self)
         else:
             print "Elige una venta"
     def ModificarVenta(self,widget,data=None):
@@ -306,12 +314,12 @@ class Facturas():
             print "La venta debe tener idCLiente, idProducto y cantidad"
     def ListaIdCliente(self,widget,data=None):
          Lista=Conexion2.ListarIDcliente()
-         self.ListaVentas.clear()
+         self.ListaCliente.clear()
          for registro in Lista:
              self.ListaCliente.append(registro)
     def ListaIdProducto(self,widget,data=None):
          Lista=Conexion2.ListarIDproducto()
-         self.ListaVentas.clear()
+         self.listaProductos.clear()
          for registro in Lista:
             self.listaProductos.append(registro)
     def MostrarDNIcliente(self,widget,data=None):
@@ -328,6 +336,25 @@ class Facturas():
         dato=Conexion2.CogerNOmbreProducto(idProducto)
         for var in dato:
             self.LabelProducto.set_text(str(var[0]))
+    def LitarFacturas(self,widget,data=None):
+        Lista=Conexion2.LIstarFacturas()
+        self.ListarFacturas.clear()
+        for registro in Lista:
+            self.ListarFacturas.append(registro)
+    def SelecionarFactura(self,widget,data=None):
+        model, iter= self.TablaFacturas.get_selection().get_selected()
+        
+        if iter!=None:
+            self.NUMFACTURA=model.get_value(iter,0)
+            self.ListaVentasFactura()
+    def ListarVentasFactura(self,widget):
+            Lista=Conexion2.LIstarVentasFactura(self.NUMFACTURA)
+            self.ListaVentas.clear()
+            for registro in Lista:
+                self.ListaVentas.append(registro)
+    def CrearPDF(self,widget,data=None):
+        if self.NUMFACTURA!="":
+            ModuloPDF.CRearPDF(self)
         
 if __name__ == "__main__":
     main = Facturas()

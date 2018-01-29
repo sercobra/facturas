@@ -173,3 +173,23 @@ def CogerNOmbreProducto(id):
     except:
         print "Error al mostrar nombre cliente"
         conex.rollback()
+def LIstarFacturas():
+    try:
+        cur.execute("select * from factura")
+        listado = cur.fetchall()
+        conex.commit()
+        return listado
+        
+    except:
+        print "Error al listar la venta"
+        conex.rollback()
+def LIstarVentasFactura(idFact):
+    try:
+        cur.execute("select * from ventas where id_factura=?",idFact)
+        listado = cur.fetchall()
+        conex.commit()
+        return listado
+        
+    except:
+        print "Error al listar la venta"
+        conex.rollback()
